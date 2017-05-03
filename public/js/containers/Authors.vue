@@ -1,17 +1,26 @@
 <template>
   <div class="contentContainer">
     <h1> {{ authorsHeader }} </h1>
-    <p> {{ authorsMsg }} </p>
+    <p> {{ authors }} </p>
   </div>
 </template>
 
 <script>
 export default {
   data () {
-    return {
-      authorsHeader: 'Authors list:',
-      authorsMsg: 'TODO',
-    }
+    this.$http.get('http://localhost/api/authors', function(data, status, request) {
+      let authors = [];
+
+      if(status == 200)
+      {
+        authors = data;
+      }
+
+      return {
+        authorsHeader: 'Authors list:',
+        authors
+      }
+    });
   }
 }
 </script>
