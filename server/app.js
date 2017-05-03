@@ -1,29 +1,52 @@
 const express = require('express');
-const path = require('path');
-const favicon = require('serve-favicon');
-const logger = require('morgan');
-const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const path = require('path');
 
-const index = require('./routes/index');
-const users = require('./routes/users');
+const DAO = require('./dao');
+const authors = require('./routes/authors');
+const books = require('./routes/books');
+
+const localConfig = require('./config');
 
 const app = express();
+const dao = new DAO(localConfig.connection);
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
 
-// uncomment after placing your favicon in /public
-app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+/**
+ * Middleware
+ */
+
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
-app.use('/', index);
-app.use('/users', users);
+
+/**
+ * Routes
+ */
+
+app.use('/api/authors', authors);
+app.use('/api/books', books);
+
+app.get('/', function (req, res) {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+app.get('/authors', function (req, res) {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+app.get('/books', function (req, res) {
+    res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
+
+dao.connect().then(() => {
+    /**
+     * Start app
+     */
+    app.listen(localConfig.application.port, function () {
+        console.log(`[INFO] : App listening on port ${localConfig.application.port}!`);
+    });
+});
 
 module.exports = app;
-
