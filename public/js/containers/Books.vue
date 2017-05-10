@@ -1,7 +1,37 @@
 <template>
   <div class="contentContainer">
     <h1> {{ booksHeader }} </h1>
-    <p> {{ booksMsg }} </p>
+    <div class="book" v-for="book in books">
+        <div class="id">
+           {{ book._id }}
+        </div>
+        <div class="name">
+            {{ book.name }}
+        </div>
+        <div class="publishing">
+            {{ book.publishing }}
+        </div>
+        <div class="ebook">
+            {{ book.ebook }}
+        </div>
+        <div class="year">
+            {{ book.year }}
+        </div>
+        <div class="isbn">
+            {{ book.isbn }}
+        </div>
+        <div class="pages">
+            {{ book.pages }}
+        </div>
+        <div class="authors">
+            <li v-for="author in book.author">
+                {{ author }}
+            </li>
+        </div>
+        <div>
+          <button v-on:click="removeBook(book)"> Delete </button>
+        </div>
+    </div>
   </div>
 </template>
 
@@ -10,7 +40,30 @@ export default {
   data () {
     return {
       booksHeader: 'Books list:',
-      booksMsg: 'TODO',
+      books: [],
+    }
+  },
+  mounted() {
+      this.fetchData()
+  },
+  methods: {
+    fetchData() {
+      this.$http
+        .get('http://localhost:3000/api/books')
+        .then(response => {
+          if(response.ok === true && response.status === 200) {
+            this.$data.books = response.body.books;
+          }
+      })
+    },
+    removeAuthor(book) {
+        this.$http
+            .delete(`http://localhost:3000/api/books/${book['_id']}`)
+            .then(response => {
+                if(response.status === 200) {
+                    this.$data.books = this.$data.books.filter(element => element["_id"] !== book['_id']);
+                }
+            })
     }
   }
 }
@@ -34,6 +87,14 @@ export default {
         border-top: none;
 
         padding: 20px;
+    }
+
+    .book {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 10px;
+        border-top: 1px solid gray;
     }
 
 </style>
